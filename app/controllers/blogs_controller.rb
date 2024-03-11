@@ -4,7 +4,8 @@ class BlogsController < ApplicationController
   skip_before_action :authenticate_user!, only: %i[index show]
 
   before_action :set_blog, only: %i[show edit update destroy]
-  before_action :check_permission, only: %i[show edit update destroy]
+  before_action :check_permission, only: %i[edit update destroy]
+  before_action :check_secret, only: %i[show]
 
   def index
     @blogs = Blog.search(params[:term]).published.default_order
@@ -58,5 +59,9 @@ class BlogsController < ApplicationController
 
   def check_permission
     raise ActiveRecord::RecordNotFound if current_user.nil? || current_user.id != @blog.user.id
+  end
+
+  def check_secret
+    raise ActiveRecord::RecordNotFound if (@blog.secret? && current_user.nil?) || (@blog.secret? && current_user.id != @blog.user.id)
   end
 end
