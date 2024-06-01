@@ -9,7 +9,7 @@ class BlogsController < ApplicationController
 
   def show
     blogs = if current_user.nil?
-              Blog.where(secret: false)
+              Blog.published
             else
               Blog.where('user_id = ? OR secret = ?', current_user.id, false)
             end
